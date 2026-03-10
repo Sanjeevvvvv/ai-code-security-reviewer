@@ -47,7 +47,6 @@ def _print_ascii_header(console: Console) -> None:
 def render_terminal_report(scan_result: Dict[str, Any], *, verbose: bool, console: Console) -> None:
     files = scan_result.get("files", []) or []
     findings = scan_result.get("findings", []) or []
-    summary = scan_result.get("summary", {}) or {}
     mock_mode = bool(scan_result.get("mock_mode"))
 
     _print_ascii_header(console)
@@ -81,22 +80,18 @@ def render_terminal_report(scan_result: Dict[str, Any], *, verbose: bool, consol
         sev = str(f.get("severity") or "low").lower()
         badge = _severity_badge(sev)
 
-        name = str(f.get("name") or "Finding")
-        owasp = str(f.get("owasp_category") or "Unknown")
-        cwe = str(f.get("cwe_id") or "CWE-0")
-        conf = float(f.get("confidence_score") or 0.0)
-        line = f.get("line_number") or "-"
+        name = str(f.get("name") or f.get("title") or "Finding")
+        owasp = str(f.get("owasp_category") or f.get("owasp") or "Unknown")
+        cwe = str(f.get("cwe_id") or f.get("cwe") or "CWE-0")
+        conf = float(f.get("confidence_score") or f.get("confidence") or 0.0)
+        line = f.get("line_number") or f.get("line") or "-"
         filename = str(f.get("filename") or "")
         snippet = str(f.get("code_snippet") or "")
         desc = str(f.get("description") or "")
-        fix = str(f.get("fix_suggestion") or "")
+        fix = str(f.get("fix_suggestion") or f.get("fix") or "")
         reason = str(f.get("confidence_reasoning") or "")
 
-        title_text = Text.assemble(
-            badge,
-            " · ",
-            (name, "bold bright_cyan"),
-        )
+        title_text = Text.assemble(badge, " · ", (name, "bold bright_cyan"))
         subtitle = f"{owasp} · {cwe} | confidence {conf:.2f}"
         if verbose and reason:
             subtitle += f"\nreason: {reason}"
@@ -140,8 +135,16 @@ def render_terminal_report(scan_result: Dict[str, Any], *, verbose: bool, consol
             )
         )
 
-    sev_counts = summary.get("vulnerabilities_by_severity", {}) if isinstance(summary, dict) else {}
-    risk_score = summary.get("overall_risk_score", 0) if isinstance(summary, dict) else 0
+    # Get counts from grade breakdown
+    grade_data = scan_result.get("grade", {}) or {}
+    breakdown = grade_data.get("breakdown", {}) or {}
+    sev_counts = {
+        "critical": breakdown.get("CRITICAL", 0),
+        "high": breakdown.get("HIGH", 0),
+        "medium": breakdown.get("MEDIUM", 0),
+        "low": breakdown.get("LOW", 0),
+    }
+    risk_score = grade_data.get("score", 0)
 
     table = Table(
         title=Text("Scan Summary", style="bold bright_cyan"),
@@ -166,6 +169,16 @@ def render_terminal_report(scan_result: Dict[str, Any], *, verbose: bool, consol
     console.print(table)
     console.print(Text(f"Overall Risk Score: {risk_score}/100", style="bold bright_cyan"))
 
+    # Print grade
+    g = grade_data.get("grade", "?")
+    label = grade_data.get("label", "")
+    recommendation = grade_data.get("recommendation", "")
+    grade_colors = {"A+": "bright_green", "A": "green", "B": "yellow", "C": "dark_orange", "D": "red", "F": "bright_red"}
+    color = grade_colors.get(g, "white")
+    console.print(Text(f"\n  Grade: {g} — {label}", style=f"bold {color}"))
+    if recommendation:
+        console.print(Text(f"  {recommendation}\n", style=color))
+
 
 def format_json_report(scan_result: Dict[str, Any]) -> str:
     return json.dumps(scan_result, indent=2, ensure_ascii=False, sort_keys=False)
@@ -173,7 +186,7 @@ def format_json_report(scan_result: Dict[str, Any]) -> str:
 
 def format_markdown_report(scan_result: Dict[str, Any]) -> str:
     findings = scan_result.get("findings", [])
-    summary = scan_result.get("summary", {})
+    grade_data = scan_result.get("grade", {}) or {}
     files = scan_result.get("files", [])
 
     lines: List[str] = []
@@ -181,27 +194,32 @@ def format_markdown_report(scan_result: Dict[str, Any]) -> str:
     lines.append("")
     lines.append(f"- **Files scanned**: {len(files)}")
     lines.append(f"- **Timestamp**: {scan_result.get('scanned_at')}")
-    lines.append(f"- **Overall risk score (0-100)**: {summary.get('overall_risk_score', 0)}")
+    lines.append(f"- **Grade**: {grade_data.get('grade', 'N/A')} ({grade_data.get('score', 0)}/100)")
+    lines.append(f"- **Overall risk score**: {grade_data.get('score', 0)}/100")
     lines.append("")
 
-    sev = summary.get("vulnerabilities_by_severity", {}) or {}
+    breakdown = grade_data.get("breakdown", {}) or {}
     lines.append("## Summary")
     lines.append("")
     lines.append("| Severity | Count |")
     lines.append("|---|---:|")
-    for s in ["critical", "high", "medium", "low"]:
-        lines.append(f"| {s} | {sev.get(s, 0)} |")
+    lines.append(f"| critical | {breakdown.get('CRITICAL', 0)} |")
+    lines.append(f"| high | {breakdown.get('HIGH', 0)} |")
+    lines.append(f"| medium | {breakdown.get('MEDIUM', 0)} |")
+    lines.append(f"| low | {breakdown.get('LOW', 0)} |")
     lines.append("")
 
     lines.append("## Findings")
     lines.append("")
     for f in findings:
-        lines.append(f"### {f.get('name')} ({str(f.get('severity')).upper()})")
+        name = f.get("name") or f.get("title") or "Finding"
+        sev = str(f.get("severity") or "low").upper()
+        lines.append(f"### {name} ({sev})")
         lines.append("")
         lines.append(f"- **File**: `{f.get('filename')}`")
-        lines.append(f"- **Line**: {f.get('line_number')}")
-        lines.append(f"- **OWASP**: {f.get('owasp_category')} | **CWE**: {f.get('cwe_id')}")
-        lines.append(f"- **Confidence**: {float(f.get('confidence_score') or 0.0):.2f}")
+        lines.append(f"- **Line**: {f.get('line_number') or f.get('line')}")
+        lines.append(f"- **OWASP**: {f.get('owasp_category') or f.get('owasp')} | **CWE**: {f.get('cwe_id') or f.get('cwe')}")
+        lines.append(f"- **Confidence**: {float(f.get('confidence_score') or f.get('confidence') or 0.0):.2f}")
         lines.append("")
         lines.append(f"**Description**: {f.get('description')}")
         lines.append("")
@@ -210,7 +228,7 @@ def format_markdown_report(scan_result: Dict[str, Any]) -> str:
             lines.append(str(f.get("code_snippet")))
             lines.append("```")
             lines.append("")
-        lines.append(f"**Fix suggestion**: {f.get('fix_suggestion')}")
+        lines.append(f"**Fix suggestion**: {f.get('fix_suggestion') or f.get('fix')}")
         lines.append("")
 
     return "\n".join(lines)
