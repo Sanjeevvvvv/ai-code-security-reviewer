@@ -202,3 +202,13 @@ class AnalyzerPipeline:
         return analyze_code(code, filename=filename, **kwargs)
     def analyze_file(self, filepath, **kwargs):
         return analyze_file(filepath, **kwargs)
+
+    def run(self, files, severity_filter=None, verbose=False):
+        results = []
+        for f in files:
+            try:
+                r = self.analyze_file(f)
+                results.extend(r.get("findings", []))
+            except Exception as e:
+                pass
+        return results
