@@ -1,0 +1,320 @@
+[
+  {
+    "id": "3e832c73-5a2d-4078-a658-0b1cabd3f1b8",
+    "timestamp": "2026-03-09T19:02:32.035654+00:00",
+    "source": "https://github.com/Sri-dathu/Complexity-Analyzer",
+    "findings": [
+      {
+        "name": "Potential Security Misconfiguration",
+        "severity": "low",
+        "description": "Mock mode could not identify strong signals; review configuration and dependency hygiene.",
+        "line_number": 1,
+        "code_snippet": "import js from \"@eslint/js\";",
+        "fix_suggestion": "Enable secure defaults and add automated security testing (SAST/DAST) in CI.",
+        "owasp_category": "A05-Security Misconfiguration",
+        "cwe_id": "CWE-16",
+        "confidence_score": 0.37,
+        "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\eslint.config.js",
+        "sources": [
+          "llm:mock"
+        ]
+      },
+      {
+        "name": "Potential Security Misconfiguration",
+        "severity": "low",
+        "description": "Mock mode could not identify strong signals; review configuration and dependency hygiene.",
+        "line_number": 1,
+        "code_snippet": "export default {",
+        "fix_suggestion": "Enable secure defaults and add automated security testing (SAST/DAST) in CI.",
+        "owasp_category": "A05-Security Misconfiguration",
+        "cwe_id": "CWE-16",
+        "confidence_score": 0.37,
+        "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\postcss.config.js",
+        "sources": [
+          "llm:mock"
+        ]
+      }
+    ],
+    "summary": {
+      "total_files_scanned": 2,
+      "total_findings": 2,
+      "vulnerabilities_by_severity": {
+        "low": 2
+      },
+      "owasp_breakdown": {
+        "A05-Security Misconfiguration": 2
+      },
+      "top_3_findings": [
+        {
+          "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\eslint.config.js",
+          "name": "Potential Security Misconfiguration",
+          "severity": "low",
+          "line_number": 1,
+          "confidence_score": 0.37,
+          "owasp_category": "A05-Security Misconfiguration",
+          "cwe_id": "CWE-16"
+        },
+        {
+          "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\postcss.config.js",
+          "name": "Potential Security Misconfiguration",
+          "severity": "low",
+          "line_number": 1,
+          "confidence_score": 0.37,
+          "owasp_category": "A05-Security Misconfiguration",
+          "cwe_id": "CWE-16"
+        }
+      ],
+      "overall_risk_score": 3
+    },
+    "risk_score": 3
+  },
+  {
+    "id": "91c6c5ed-d586-4645-aaba-2e0a766c5b6c",
+    "timestamp": "2026-03-09T19:02:45.761981+00:00",
+    "source": "https://github.com/Sri-dathu/Complexity-Analyzer",
+    "findings": [
+      {
+        "name": "Potential Security Misconfiguration",
+        "severity": "low",
+        "description": "Mock mode could not identify strong signals; review configuration and dependency hygiene.",
+        "line_number": 1,
+        "code_snippet": "import js from \"@eslint/js\";",
+        "fix_suggestion": "Enable secure defaults and add automated security testing (SAST/DAST) in CI.",
+        "owasp_category": "A05-Security Misconfiguration",
+        "cwe_id": "CWE-16",
+        "confidence_score": 0.37,
+        "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\eslint.config.js",
+        "sources": [
+          "llm:mock"
+        ]
+      },
+      {
+        "name": "Potential Security Misconfiguration",
+        "severity": "low",
+        "description": "Mock mode could not identify strong signals; review configuration and dependency hygiene.",
+        "line_number": 1,
+        "code_snippet": "export default {",
+        "fix_suggestion": "Enable secure defaults and add automated security testing (SAST/DAST) in CI.",
+        "owasp_category": "A05-Security Misconfiguration",
+        "cwe_id": "CWE-16",
+        "confidence_score": 0.37,
+        "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\postcss.config.js",
+        "sources": [
+          "llm:mock"
+        ]
+      }
+    ],
+    "summary": {
+      "total_files_scanned": 2,
+      "total_findings": 2,
+      "vulnerabilities_by_severity": {
+        "low": 2
+      },
+      "owasp_breakdown": {
+        "A05-Security Misconfiguration": 2
+      },
+      "top_3_findings": [
+        {
+          "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\eslint.config.js",
+          "name": "Potential Security Misconfiguration",
+          "severity": "low",
+          "line_number": 1,
+          "confidence_score": 0.37,
+          "owasp_category": "A05-Security Misconfiguration",
+          "cwe_id": "CWE-16"
+        },
+        {
+          "filename": "C:\\Users\\Sanjeev\\Documents\\AI Code Security Reviewer\\ai-code-security-reviewer\\temp_repos\\Complexity-Analyzer_66136e1db2\\postcss.config.js",
+          "name": "Potential Security Misconfiguration",
+          "severity": "low",
+          "line_number": 1,
+          "confidence_score": 0.37,
+          "owasp_category": "A05-Security Misconfiguration",
+          "cwe_id": "CWE-16"
+        }
+      ],
+      "overall_risk_score": 3
+    },
+    "risk_score": 3
+  },
+  {
+    "id": "365c3b28-de42-41c9-bb83-0bca4ff7123d",
+    "timestamp": "2026-03-09T19:03:54.542396+00:00",
+    "source": "pushup_coach_gui_enhanced.py",
+    "findings": [
+      {
+        "name": "Potential SQL Injection",
+        "severity": "high",
+        "description": "User-controlled input appears to be interpolated into an SQL query without parameterization.",
+        "line_number": 1,
+        "code_snippet": "\"\"\"",
+        "fix_suggestion": "Use parameterized queries (prepared statements) and avoid string concatenation/formatting in SQL.",
+        "owasp_category": "A03-Injection",
+        "cwe_id": "CWE-74",
+        "confidence_score": 0.72,
+        "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmpm6zjv2_5.py",
+        "sources": [
+          "llm:mock"
+        ]
+      }
+    ],
+    "summary": {
+      "total_files_scanned": 1,
+      "total_findings": 1,
+      "vulnerabilities_by_severity": {
+        "high": 1
+      },
+      "owasp_breakdown": {
+        "A03-Injection": 1
+      },
+      "top_3_findings": [
+        {
+          "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmpm6zjv2_5.py",
+          "name": "Potential SQL Injection",
+          "severity": "high",
+          "line_number": 1,
+          "confidence_score": 0.72,
+          "owasp_category": "A03-Injection",
+          "cwe_id": "CWE-74"
+        }
+      ],
+      "overall_risk_score": 8
+    },
+    "risk_score": 8
+  },
+  {
+    "id": "dca4bb88-a306-4df8-b6a8-51fb54d50b30",
+    "timestamp": "2026-03-09T19:03:59.659432+00:00",
+    "source": "pushup_coach_gui_enhanced.py",
+    "findings": [
+      {
+        "name": "Potential SQL Injection",
+        "severity": "high",
+        "description": "User-controlled input appears to be interpolated into an SQL query without parameterization.",
+        "line_number": 1,
+        "code_snippet": "\"\"\"",
+        "fix_suggestion": "Use parameterized queries (prepared statements) and avoid string concatenation/formatting in SQL.",
+        "owasp_category": "A03-Injection",
+        "cwe_id": "CWE-74",
+        "confidence_score": 0.72,
+        "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmpc_tjkrl_.py",
+        "sources": [
+          "llm:mock"
+        ]
+      }
+    ],
+    "summary": {
+      "total_files_scanned": 1,
+      "total_findings": 1,
+      "vulnerabilities_by_severity": {
+        "high": 1
+      },
+      "owasp_breakdown": {
+        "A03-Injection": 1
+      },
+      "top_3_findings": [
+        {
+          "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmpc_tjkrl_.py",
+          "name": "Potential SQL Injection",
+          "severity": "high",
+          "line_number": 1,
+          "confidence_score": 0.72,
+          "owasp_category": "A03-Injection",
+          "cwe_id": "CWE-74"
+        }
+      ],
+      "overall_risk_score": 8
+    },
+    "risk_score": 8
+  },
+  {
+    "id": "9ad52795-16b7-4853-8631-61defc9be699",
+    "timestamp": "2026-03-09T19:04:06.132992+00:00",
+    "source": "pushup_coach_gui_enhanced.py",
+    "findings": [
+      {
+        "name": "Potential SQL Injection",
+        "severity": "high",
+        "description": "User-controlled input appears to be interpolated into an SQL query without parameterization.",
+        "line_number": 1,
+        "code_snippet": "\"\"\"",
+        "fix_suggestion": "Use parameterized queries (prepared statements) and avoid string concatenation/formatting in SQL.",
+        "owasp_category": "A03-Injection",
+        "cwe_id": "CWE-74",
+        "confidence_score": 0.72,
+        "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmp3cu09wb7.py",
+        "sources": [
+          "llm:mock"
+        ]
+      }
+    ],
+    "summary": {
+      "total_files_scanned": 1,
+      "total_findings": 1,
+      "vulnerabilities_by_severity": {
+        "high": 1
+      },
+      "owasp_breakdown": {
+        "A03-Injection": 1
+      },
+      "top_3_findings": [
+        {
+          "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmp3cu09wb7.py",
+          "name": "Potential SQL Injection",
+          "severity": "high",
+          "line_number": 1,
+          "confidence_score": 0.72,
+          "owasp_category": "A03-Injection",
+          "cwe_id": "CWE-74"
+        }
+      ],
+      "overall_risk_score": 8
+    },
+    "risk_score": 8
+  },
+  {
+    "id": "fc4149ca-f5b8-451e-90ae-8118c94f6ffa",
+    "timestamp": "2026-03-09T19:05:50.984165+00:00",
+    "source": "hand_controller.py",
+    "findings": [
+      {
+        "name": "Potential Security Misconfiguration",
+        "severity": "low",
+        "description": "Mock mode could not identify strong signals; review configuration and dependency hygiene.",
+        "line_number": 1,
+        "code_snippet": "\"\"\"",
+        "fix_suggestion": "Enable secure defaults and add automated security testing (SAST/DAST) in CI.",
+        "owasp_category": "A05-Security Misconfiguration",
+        "cwe_id": "CWE-16",
+        "confidence_score": 0.27,
+        "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmpr3bbb75q.py",
+        "sources": [
+          "llm:mock"
+        ]
+      }
+    ],
+    "summary": {
+      "total_files_scanned": 1,
+      "total_findings": 1,
+      "vulnerabilities_by_severity": {
+        "low": 1
+      },
+      "owasp_breakdown": {
+        "A05-Security Misconfiguration": 1
+      },
+      "top_3_findings": [
+        {
+          "filename": "C:\\Users\\Sanjeev\\AppData\\Local\\Temp\\tmpr3bbb75q.py",
+          "name": "Potential Security Misconfiguration",
+          "severity": "low",
+          "line_number": 1,
+          "confidence_score": 0.27,
+          "owasp_category": "A05-Security Misconfiguration",
+          "cwe_id": "CWE-16"
+        }
+      ],
+      "overall_risk_score": 1
+    },
+    "risk_score": 1
+  }
+]

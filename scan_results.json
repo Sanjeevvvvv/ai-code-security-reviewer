@@ -1,0 +1,764 @@
+Scanning directory: .
+{
+  "findings": [
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 33,
+      "code_snippet": "if any(k in hay for k in [\"misconfig\", \"debug\", \"verify=false\", \"unsafe\", \"cors\", \"headers\", \"exposed\"]):",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "analyzer\\classifier.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 124,
+      "code_snippet": "if \"verify=False\" in code or \"md5(\" in code.lower() or \"sha1(\" in code.lower():",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "analyzer\\llm.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 125,
+      "code_snippet": "ln = find_line(\"verify=False\") if \"verify=False\" in code else find_line(\"md5(\") or find_line(\"sha1(\")",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "analyzer\\llm.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 129,
+      "code_snippet": "\"severity\": \"medium\" if \"verify=False\" in code else \"high\",",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "analyzer\\llm.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 31,
+      "code_snippet": "if \"verify=False\" in line.replace(\" \", \"\"):",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "detectors\\auth.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 39,
+      "code_snippet": "\"TLS verification appears disabled (verify=False), enabling MITM attacks.\",",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "detectors\\auth.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 40,
+      "code_snippet": "\"Remove verify=False and validate certificates. If needed for dev, gate behind an explicit development-only flag.\",",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "detectors\\auth.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "Weak Cipher Mode: ECB",
+      "severity": "HIGH",
+      "cwe": "CWE-327",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 42,
+      "code_snippet": "\"pattern\": r\"MODE_ECB\",",
+      "description": "ECB mode does not provide semantic security and reveals patterns.",
+      "fix": "Use AES-GCM or AES-CBC with a random IV instead of ECB mode.",
+      "filename": "detectors\\crypto_weakness.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A03-Injection",
+      "cwe_id": "CWE-74"
+    },
+    {
+      "title": "Deprecated SSL/TLS Protocol",
+      "severity": "HIGH",
+      "cwe": "CWE-326",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 58,
+      "code_snippet": "\"pattern\": r\"PROTOCOL_SSLv2|PROTOCOL_SSLv3|PROTOCOL_TLSv1\\b\",",
+      "description": "SSLv2, SSLv3, and TLS 1.0 are deprecated and vulnerable.",
+      "fix": "Use ssl.PROTOCOL_TLS_CLIENT with minimum TLS 1.2.",
+      "filename": "detectors\\crypto_weakness.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "CSRF Protection Explicitly Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-352",
+      "owasp": "A01:2021 \u2013 Broken Access Control",
+      "line": 18,
+      "code_snippet": "\"pattern\": r\"csrf_exempt\",",
+      "description": "CSRF protection has been explicitly disabled on this view.",
+      "fix": "Remove @csrf_exempt unless absolutely necessary. Add CSRF token validation.",
+      "filename": "detectors\\csrf.py",
+      "detector": "csrf",
+      "confidence": 0.6,
+      "owasp_category": "A03-Injection",
+      "cwe_id": "CWE-74"
+    },
+    {
+      "title": "CSRF Protection Explicitly Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-352",
+      "owasp": "A01:2021 \u2013 Broken Access Control",
+      "line": 23,
+      "code_snippet": "\"fix\": \"Remove @csrf_exempt unless absolutely necessary. Add CSRF token validation.\"",
+      "description": "CSRF protection has been explicitly disabled on this view.",
+      "fix": "Remove @csrf_exempt unless absolutely necessary. Add CSRF token validation.",
+      "filename": "detectors\\csrf.py",
+      "detector": "csrf",
+      "confidence": 0.6,
+      "owasp_category": "A03-Injection",
+      "cwe_id": "CWE-74"
+    },
+    {
+      "title": "Wildcard CORS Enabling CSRF",
+      "severity": "HIGH",
+      "cwe": "CWE-352",
+      "owasp": "A01:2021 \u2013 Broken Access Control",
+      "line": 50,
+      "code_snippet": "\"pattern\": r\"Access-Control-Allow-Origin.*\\*\",",
+      "description": "Wildcard CORS policy allows any origin to make cross-site requests.",
+      "fix": "Restrict Access-Control-Allow-Origin to trusted domains only.",
+      "filename": "detectors\\csrf.py",
+      "detector": "csrf",
+      "confidence": 0.6,
+      "owasp_category": "A05-Security Misconfiguration",
+      "cwe_id": "CWE-16"
+    },
+    {
+      "title": "Flask Route Missing CSRF Protection",
+      "severity": "HIGH",
+      "cwe": "CWE-352",
+      "owasp": "A01:2021 \u2013 Broken Access Control",
+      "line": 13,
+      "code_snippet": "@app.route(\"/login\", methods=[\"POST\"])",
+      "description": "POST route has no CSRF token validation.",
+      "fix": "Use Flask-WTF with CSRFProtect() or validate tokens manually.",
+      "filename": "tests\\vulnerable_samples\\auth_vuln.py",
+      "detector": "csrf",
+      "confidence": 0.6,
+      "owasp_category": "A03-Injection",
+      "cwe_id": "CWE-74"
+    },
+    {
+      "title": "Weak Hash: MD5",
+      "severity": "HIGH",
+      "cwe": "CWE-327",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 26,
+      "code_snippet": "token = hashlib.md5(f\"{username}:{password}\".encode()).hexdigest()  # nosec",
+      "description": "MD5 is cryptographically broken and should not be used for security purposes.",
+      "fix": "Use hashlib.sha256() or hashlib.sha3_256() instead.",
+      "filename": "tests\\vulnerable_samples\\auth_vuln.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "title": "SSL Certificate Verification Disabled",
+      "severity": "HIGH",
+      "cwe": "CWE-295",
+      "owasp": "A02:2021 \u2013 Cryptographic Failures",
+      "line": 37,
+      "code_snippet": "resp = requests.get(f\"https://internal-api.local/users/{user_id}\", verify=False)  # nosec",
+      "description": "Disabling SSL verification exposes connections to MITM attacks.",
+      "fix": "Always verify SSL certificates. Use certifi for certificate bundles.",
+      "filename": "tests\\vulnerable_samples\\auth_vuln.py",
+      "detector": "crypto_weakness",
+      "confidence": 0.6,
+      "owasp_category": "A02-Cryptographic Failures",
+      "cwe_id": "CWE-310"
+    },
+    {
+      "filename": "tests\\vulnerable_samples\\secrets_vuln.py",
+      "name": "Hardcoded AWS Access Key",
+      "severity": "critical",
+      "description": "Detected an AWS Access Key ID pattern in source code.",
+      "line_number": 4,
+      "code_snippet": "AWS_ACCESS_KEY_ID = \"AKIA1234567890ABCDEF\"",
+      "fix_suggestion": "Remove secrets from code. Use environment variables or a secrets manager. Rotate any exposed credentials immediately.",
+      "owasp_category": "A02-Cryptographic Failures",
+      "confidence_score": 0.8,
+      "source": "detector:secrets",
+      "detector_signal": true,
+      "confidence": 0.85,
+      "cwe_id": "CWE-310"
+    },
+    {
+      "filename": "analyzer\\llm.py",
+      "name": "Unsafe Deserialization (pickle)",
+      "severity": "critical",
+      "description": "pickle deserialization can execute attacker-controlled code when input is untrusted.",
+      "line_number": 140,
+      "code_snippet": "if any(k in code for k in [\"pickle.loads\", \"yaml.load\", \"eval(\", \"exec(\"]):",
+      "fix_suggestion": "Avoid pickle for untrusted input; use safe formats (JSON) and validate inputs strictly.",
+      "owasp_category": "A08-Data Integrity Failures",
+      "confidence_score": 0.75,
+      "source": "detector:deserialization",
+      "detector_signal": true,
+      "confidence": 0.84,
+      "cwe_id": "CWE-345"
+    },
+    {
+      "filename": "detectors\\command_injection.py",
+      "name": "Dynamic Code Execution (exec)",
+      "severity": "critical",
+      "description": "exec() executes arbitrary code and is dangerous with untrusted input.",
+      "line_number": 54,
+      "code_snippet": "\"description\": \"exec() with user input allows arbitrary code execution.\",",
+      "fix_suggestion": "Avoid exec(); refactor to explicit logic and validate any external input.",
+      "owasp_category": "A08-Data Integrity Failures",
+      "confidence_score": 0.75,
+      "source": "detector:deserialization",
+      "detector_signal": true,
+      "confidence": 0.84,
+      "cwe_id": "CWE-345"
+    },
+    {
+      "filename": "detectors\\deserialization.py",
+      "name": "Unsafe Deserialization (pickle)",
+      "severity": "critical",
+      "description": "pickle deserialization can execute attacker-controlled code when input is untrusted.",
+      "line_number": 29,
+      "code_snippet": "if \"pickle.loads\" in s or \"pickle.load\" in s:",
+      "fix_suggestion": "Avoid pickle for untrusted input; use safe formats (JSON) and validate inputs strictly.",
+      "owasp_category": "A08-Data Integrity Failures",
+      "confidence_score": 0.75,
+      "source": "detector:deserialization",
+      "detector_signal": true,
+      "confidence": 0.84,
+      "cwe_id": "CWE-345"
+    },
+    {
+      "filename": "detectors\\xss.py",
+      "name": "Dynamic Code Execution (eval)",
+      "severity": "critical",
+      "description": "eval() can execute arbitrary code if attacker-controlled input reaches it.",
+      "line_number": 63,
+      "code_snippet": "\"description\": \"eval() with DOM sources enables script injection.\",",
+      "fix_suggestion": "Avoid eval(); use safe parsers (json, ast.literal_eval for trusted literals) and strict validation.",
+      "owasp_category": "A08-Data Integrity Failures",
+      "confidence_score": 0.75,
+      "source": "detector:deserialization",
+      "detector_signal": true,
+      "confidence": 0.84,
+      "cwe_id": "CWE-345"
+    },
+    {
+      "filename": "detectors\\sql_injection.py",
+      "name": "Potential SQL Injection",
+      "severity": "high",
+      "description": "SQL query appears to be built using .format().",
+      "line_number": 36,
+      "code_snippet": "if \".format(\" in line and \"SELECT\" in line.upper():",
+      "fix_suggestion": "Use parameterized queries / prepared statements. Avoid f-strings, string concatenation, or .format/% formatting for SQL.",
+      "owasp_category": "A03-Injection",
+      "confidence_score": 0.7,
+      "source": "detector:sql_injection",
+      "detector_signal": true,
+      "confidence": 0.7499999999999999,
+      "cwe_id": "CWE-74"
+    },
+    {
+      "filename": "tests\\vulnerable_samples\\auth_vuln.py",
+      "name": "Weak Hash Used for Passwords",
+      "severity": "high",
+      "description": "MD5/SHA1 are not suitable for password hashing and are vulnerable to fast cracking.",
+      "line_number": 26,
+      "code_snippet": "token = hashlib.md5(f\"{username}:{password}\".encode()).hexdigest()  # nosec",
+      "fix_suggestion": "Use a password hashing function like bcrypt or Argon2 with proper salts and parameters.",
+      "owasp_category": "A07-Authentication Failures",
+      "confidence_score": 0.7,
+      "source": "detector:auth",
+      "detector_signal": true,
+      "confidence": 0.7499999999999999,
+      "cwe_id": "CWE-287"
+    },
+    {
+      "filename": "tests\\vulnerable_samples\\sql_vuln.py",
+      "name": "Potential SQL Injection",
+      "severity": "high",
+      "description": "SQL query appears to be built using an f-string.",
+      "line_number": 29,
+      "code_snippet": "query1 = f\"SELECT * FROM users WHERE username = '{username}'\"",
+      "fix_suggestion": "Use parameterized queries / prepared statements. Avoid f-strings, string concatenation, or .format/% formatting for SQL.",
+      "owasp_category": "A03-Injection",
+      "confidence_score": 0.7,
+      "source": "detector:sql_injection",
+      "detector_signal": true,
+      "confidence": 0.7499999999999999,
+      "cwe_id": "CWE-74"
+    },
+    {
+      "filename": "web\\backend\\routes\\scan.py",
+      "name": "Potential SQL Injection",
+      "severity": "high",
+      "description": "SQL query appears to be built using an f-string.",
+      "line_number": 122,
+      "code_snippet": "raise HTTPException(status_code=400, detail=f\"Failed to load GitHub repo: {exc}\") from exc",
+      "fix_suggestion": "Use parameterized queries / prepared statements. Avoid f-strings, string concatenation, or .format/% formatting for SQL.",
+      "owasp_category": "A03-Injection",
+      "confidence_score": 0.7,
+      "source": "detector:sql_injection",
+      "detector_signal": true,
+      "confidence": 0.7499999999999999,
+      "cwe_id": "CWE-74"
+    }
+  ],
+  "grade": {
+    "grade": "A",
+    "score": 95,
+    "risk_score": 4.58,
+    "label": "Very Good - Minor issues only",
+    "breakdown": {
+      "CRITICAL": 0,
+      "HIGH": 15,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "total_findings": 24,
+    "recommendation": "\u26a0\ufe0f  Address 15 HIGH severity issue(s) before next deployment.",
+    "lines_of_code": 3272
+  },
+  "stats": {
+    "total_findings": 24,
+    "files_scanned": 47,
+    "lines_of_code": 3272,
+    "file_stats": [
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 12,
+        "scan_time_seconds": 0.01,
+        "filename": "fix.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 9,
+        "scan_time_seconds": 0.0,
+        "filename": "fix2.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 81,
+        "scan_time_seconds": 0.01,
+        "filename": "main.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 1,
+        "filtered_out": 0,
+        "lines_of_code": 47,
+        "scan_time_seconds": 0.0,
+        "filename": "analyzer\\classifier.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 54,
+        "scan_time_seconds": 0.0,
+        "filename": "analyzer\\confidence.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 120,
+        "scan_time_seconds": 0.01,
+        "filename": "analyzer\\false_positive_filter.py"
+      },
+      {
+        "total_findings": 4,
+        "raw_findings": 14,
+        "filtered_out": 10,
+        "lines_of_code": 261,
+        "scan_time_seconds": 0.02,
+        "filename": "analyzer\\llm.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 159,
+        "scan_time_seconds": 0.01,
+        "filename": "analyzer\\parser.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 161,
+        "scan_time_seconds": 0.01,
+        "filename": "analyzer\\pipeline.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 102,
+        "scan_time_seconds": 0.0,
+        "filename": "analyzer\\security_grade.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 1,
+        "scan_time_seconds": 0.0,
+        "filename": "analyzer\\__init__.py"
+      },
+      {
+        "total_findings": 3,
+        "raw_findings": 6,
+        "filtered_out": 3,
+        "lines_of_code": 86,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\auth.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 2,
+        "filtered_out": 1,
+        "lines_of_code": 86,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\command_injection.py"
+      },
+      {
+        "total_findings": 2,
+        "raw_findings": 3,
+        "filtered_out": 1,
+        "lines_of_code": 94,
+        "scan_time_seconds": 0.01,
+        "filename": "detectors\\crypto_weakness.py"
+      },
+      {
+        "total_findings": 3,
+        "raw_findings": 3,
+        "filtered_out": 0,
+        "lines_of_code": 78,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\csrf.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 5,
+        "filtered_out": 4,
+        "lines_of_code": 79,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\deserialization.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 1,
+        "filtered_out": 1,
+        "lines_of_code": 78,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\path_traversal.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 82,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\secrets.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 4,
+        "filtered_out": 3,
+        "lines_of_code": 115,
+        "scan_time_seconds": 0.01,
+        "filename": "detectors\\sql_injection.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 2,
+        "filtered_out": 1,
+        "lines_of_code": 87,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\xss.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 1,
+        "scan_time_seconds": 0.0,
+        "filename": "detectors\\__init__.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 200,
+        "scan_time_seconds": 0.01,
+        "filename": "output\\formatter.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 52,
+        "scan_time_seconds": 0.0,
+        "filename": "output\\reporter.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 1,
+        "scan_time_seconds": 0.0,
+        "filename": "output\\__init__.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 28,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\eslint.config.js"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 6,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\postcss.config.js"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 121,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\tailwind.config.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 21,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\vite.config.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 1,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\src\\vite-env.d.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 2,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\src\\components\\ui\\use-toast.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 161,
+        "scan_time_seconds": 0.01,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\src\\hooks\\use-toast.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 178,
+        "scan_time_seconds": 0.01,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\src\\lib\\complexity-analyzer.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 12,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\src\\lib\\ocr-processor.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 5,
+        "scan_time_seconds": 0.0,
+        "filename": "temp_repos\\Complexity-Analyzer_66136e1db2\\src\\lib\\utils.ts"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 61,
+        "scan_time_seconds": 0.0,
+        "filename": "tests\\test_analyzer.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 1,
+        "scan_time_seconds": 0.0,
+        "filename": "tests\\__init__.py"
+      },
+      {
+        "total_findings": 4,
+        "raw_findings": 5,
+        "filtered_out": 1,
+        "lines_of_code": 28,
+        "scan_time_seconds": 0.0,
+        "filename": "tests\\vulnerable_samples\\auth_vuln.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 2,
+        "filtered_out": 1,
+        "lines_of_code": 11,
+        "scan_time_seconds": 0.0,
+        "filename": "tests\\vulnerable_samples\\secrets_vuln.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 5,
+        "filtered_out": 4,
+        "lines_of_code": 38,
+        "scan_time_seconds": 0.0,
+        "filename": "tests\\vulnerable_samples\\sql_vuln.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 95,
+        "scan_time_seconds": 0.0,
+        "filename": "utils\\chunker.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 82,
+        "scan_time_seconds": 0.01,
+        "filename": "utils\\file_loader.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 1,
+        "scan_time_seconds": 0.0,
+        "filename": "utils\\__init__.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 25,
+        "scan_time_seconds": 0.0,
+        "filename": "web\\backend\\main.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 70,
+        "scan_time_seconds": 0.0,
+        "filename": "web\\backend\\models.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 135,
+        "scan_time_seconds": 0.01,
+        "filename": "web\\backend\\routes\\history.py"
+      },
+      {
+        "total_findings": 1,
+        "raw_findings": 1,
+        "filtered_out": 0,
+        "lines_of_code": 130,
+        "scan_time_seconds": 0.01,
+        "filename": "web\\backend\\routes\\scan.py"
+      },
+      {
+        "total_findings": 0,
+        "raw_findings": 0,
+        "filtered_out": 0,
+        "lines_of_code": 14,
+        "scan_time_seconds": 0.0,
+        "filename": "web\\frontend\\vite.config.js"
+      }
+    ]
+  },
+  "summary": "\n==================================================\n  SECURITY GRADE: A  (95/100)\n  Very Good - Minor issues only\n==================================================\n  Critical: 0  High: 15  Medium: 0  Low: 0\n  \u26a0\ufe0f  Address 15 HIGH severity issue(s) before next deployment.\n==================================================\n"
+}
