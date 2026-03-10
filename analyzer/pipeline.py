@@ -73,46 +73,25 @@ def analyze_code(
     severity_filter: Optional[str] = None,
     confidence_threshold: float = 0.4,
 ) -> Dict:
-    """
-    Full analysis pipeline.
-    
-    Returns dict with:
-        - findings: List of vulnerability findings
-        - grade: Security grade result
-        - stats: Timing and count stats
-        - summary: Human-readable summary
-    """
     start_time = time.time()
     code_lines = code.split("\n")
     lines_of_code = len([l for l in code_lines if l.strip()])
 
-    # Step 1: Static detection
     raw_findings = run_all_detectors(code, filename)
-
-    # Step 2: Score confidence
     scored_findings = [dict(f, **{"confidence": score_finding(f)[0]}) for f in raw_findings]
 
-    # Step 3: LLM enhancement (if available)
     if use_llm:
         try:
             llm_findings = analyze_with_llm(code, filename)
             scored_findings.extend(llm_findings)
-        except Exception as e:
-            pass  # Fall back to static only
+        except Exception:
+            pass
 
-    # Step 4: Classify with OWASP
     classified = [enrich_finding(f) for f in scored_findings]
-
-    # Step 5: Filter false positives
     filtered = filter_false_positives(classified, code_lines, threshold=confidence_threshold)
-
-    # Step 6: Deduplicate
     deduped = deduplicate_findings(filtered)
-
-    # Step 7: Sort by severity
     sorted_findings = sort_findings(deduped)
 
-    # Step 8: Apply severity filter
     if severity_filter:
         severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         min_level = severity_order.get(severity_filter.lower(), 3)
@@ -121,9 +100,7 @@ def analyze_code(
             if severity_order.get(f.get("severity", "low").lower(), 3) <= min_level
         ]
 
-    # Step 9: Security grade
     grade = calculate_security_grade(sorted_findings, lines_of_code)
-
     elapsed = round(time.time() - start_time, 2)
 
     return {
@@ -142,36 +119,28 @@ def analyze_code(
 
 
 def analyze_file(filepath: str, **kwargs) -> Dict:
-    """Analyze a single file."""
     path = Path(filepath)
-    
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filepath}")
-    
     ext = path.suffix.lower()
     if ext not in SUPPORTED_EXTENSIONS:
-        raise ValueError(f"Unsupported file type: {ext}. Supported: {list(SUPPORTED_EXTENSIONS.keys())}")
-    
+        raise ValueError(f"Unsupported file type: {ext}")
     code = path.read_text(encoding="utf-8", errors="ignore")
     return analyze_code(code, filename=str(path), **kwargs)
 
 
 def analyze_directory(dirpath: str, **kwargs) -> Dict:
-    """Analyze all supported files in a directory."""
     all_findings = []
     all_stats = []
-    
+
     for root, dirs, files in os.walk(dirpath):
-        # Skip common non-source directories
         dirs[:] = [d for d in dirs if d not in {
-            ".git", "node_modules", "__pycache__", ".venv", 
+            ".git", "node_modules", "__pycache__", ".venv",
             "venv", "dist", "build", ".tox"
         }]
-        
         for file in files:
             filepath = os.path.join(root, file)
             ext = Path(filepath).suffix.lower()
-            
             if ext in SUPPORTED_EXTENSIONS:
                 try:
                     result = analyze_file(filepath, **kwargs)
@@ -179,11 +148,10 @@ def analyze_directory(dirpath: str, **kwargs) -> Dict:
                     all_stats.append(result["stats"])
                 except Exception as e:
                     print(f"  Skipped {filepath}: {e}")
-    
-    # Aggregate grade for whole directory
+
     total_loc = sum(s["lines_of_code"] for s in all_stats)
     overall_grade = calculate_security_grade(all_findings, total_loc)
-    
+
     return {
         "findings": sort_findings(all_findings),
         "grade": overall_grade,
@@ -200,15 +168,21 @@ def analyze_directory(dirpath: str, **kwargs) -> Dict:
 class AnalyzerPipeline:
     def analyze(self, code, filename="code.py", **kwargs):
         return analyze_code(code, filename=filename, **kwargs)
+
     def analyze_file(self, filepath, **kwargs):
         return analyze_file(filepath, **kwargs)
 
     def run(self, files, severity_filter=None, verbose=False):
-        results = []
+        all_findings = []
         for f in files:
             try:
                 r = self.analyze_file(f)
-                results.extend(r.get("findings", []))
-            except Exception as e:
+                all_findings.extend(r.get("findings", []))
+            except Exception:
                 pass
-        return results
+        grade = calculate_security_grade(all_findings, 100)
+        return {
+            "findings": all_findings,
+            "grade": grade,
+            "summary": format_grade_display(grade)
+        }
