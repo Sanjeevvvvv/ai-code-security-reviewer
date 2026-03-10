@@ -195,3 +195,10 @@ def analyze_directory(dirpath: str, **kwargs) -> Dict:
         },
         "summary": format_grade_display(overall_grade),
     }
+
+
+class AnalyzerPipeline:
+    def analyze(self, code, filename="code.py", **kwargs):
+        return analyze_code(code, filename=filename, **kwargs)
+    def analyze_file(self, filepath, **kwargs):
+        return analyze_file(filepath, **kwargs)
