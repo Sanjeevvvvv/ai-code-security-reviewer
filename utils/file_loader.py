@@ -1,3 +1,5 @@
+import os
+os.environ["GIT_PYTHON_REFRESH"] = "quiet"
 from __future__ import annotations
 
 import hashlib
