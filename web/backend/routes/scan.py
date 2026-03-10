@@ -36,7 +36,10 @@ def _to_scan_result(
 ) -> ScanResult:
     findings_raw = raw.get("findings") or []
     summary = raw.get("summary") or {}
-    risk_score = int(summary.get("overall_risk_score") or 0)
+    if isinstance(summary, dict):
+        risk_score = int(summary.get("overall_risk_score") or 0)
+    else:
+        risk_score = 0
 
     findings: List[Finding] = []
     for f in findings_raw:
@@ -58,7 +61,6 @@ def _to_scan_result(
     scanned_at = raw.get("scanned_at")
     from datetime import datetime
 
-    # Always store timestamps as ISO strings so FastAPI / JSON encoding doesn't fail.
     if isinstance(scanned_at, str):
         timestamp_str = scanned_at
     else:
@@ -69,7 +71,7 @@ def _to_scan_result(
         timestamp=timestamp_str,
         source=source,
         findings=findings,
-        summary=summary,
+        summary=summary if isinstance(summary, dict) else {},
         risk_score=risk_score,
     )
     append_scan_result(result)
@@ -160,4 +162,3 @@ async def upload_scan(file: UploadFile = File(...)) -> ScanResult:
     ]
     raw = _run_pipeline_for_files(files)
     return _to_scan_result(raw, source=file.filename)
-
