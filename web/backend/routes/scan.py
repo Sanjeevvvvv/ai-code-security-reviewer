@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, status
 
-from analyzer.pipeline import AnalyzerPipeline
+from analyzer.pipeline import analyze_code, analyze_file
 from utils.file_loader import SUPPORTED_EXTS, load_github_repo
 from web.backend.models import ScanRequest, ScanResult, Finding, append_scan_result
 
@@ -24,19 +24,19 @@ def _detect_language(filename: str, explicit: str | None = None) -> str:
     return SUPPORTED_EXTS.get(suffix, "python")
 
 
-def _run_pipeline_for_files(files: List[Dict[str, Any]]) -> Dict[str, Any]:
-    pipeline = AnalyzerPipeline()
-    return pipeline.run(files, severity_filter=None, verbose=False)
-
-
 def _to_scan_result(
     raw: Dict[str, Any],
     *,
     source: str,
 ) -> ScanResult:
     findings_raw = raw.get("findings") or []
+    grade_data = raw.get("grade") or {}
     summary = raw.get("summary") or {}
-    if isinstance(summary, dict):
+
+    # Get risk score from grade
+    if isinstance(grade_data, dict):
+        risk_score = int(grade_data.get("score") or 0)
+    elif isinstance(summary, dict):
         risk_score = int(summary.get("overall_risk_score") or 0)
     else:
         risk_score = 0
@@ -44,34 +44,47 @@ def _to_scan_result(
     findings: List[Finding] = []
     for f in findings_raw:
         finding = Finding(
-            name=str(f.get("name") or "Finding"),
+            name=str(f.get("name") or f.get("title") or "Finding"),
             severity=str(f.get("severity") or "low"),
             description=str(f.get("description") or ""),
-            line_number=f.get("line_number"),
+            line_number=f.get("line_number") or f.get("line"),
             code_snippet=str(f.get("code_snippet") or ""),
-            fix_suggestion=str(f.get("fix_suggestion") or ""),
-            owasp_category=str(f.get("owasp_category") or ""),
-            cwe_id=str(f.get("cwe_id") or ""),
-            confidence_score=float(f.get("confidence_score") or 0.0),
+            fix_suggestion=str(f.get("fix_suggestion") or f.get("fix") or ""),
+            owasp_category=str(f.get("owasp_category") or f.get("owasp") or ""),
+            cwe_id=str(f.get("cwe_id") or f.get("cwe") or ""),
+            confidence_score=float(f.get("confidence_score") or f.get("confidence") or 0.0),
             filename=f.get("filename"),
             sources=f.get("sources"),
         )
         findings.append(finding)
 
-    scanned_at = raw.get("scanned_at")
     from datetime import datetime
+    timestamp_str = datetime.utcnow().isoformat()
 
-    if isinstance(scanned_at, str):
-        timestamp_str = scanned_at
+    # Build summary dict for response
+    if isinstance(summary, dict):
+        summary_out = summary
+    elif isinstance(grade_data, dict):
+        breakdown = grade_data.get("breakdown", {}) or {}
+        summary_out = {
+            "vulnerabilities_by_severity": {
+                "critical": breakdown.get("CRITICAL", 0),
+                "high": breakdown.get("HIGH", 0),
+                "medium": breakdown.get("MEDIUM", 0),
+                "low": breakdown.get("LOW", 0),
+            },
+            "overall_risk_score": risk_score,
+            "grade": grade_data.get("grade", "A+"),
+        }
     else:
-        timestamp_str = datetime.utcnow().isoformat()
+        summary_out = {}
 
     result = ScanResult(
         id=str(uuid4()),
         timestamp=timestamp_str,
         source=source,
         findings=findings,
-        summary=summary if isinstance(summary, dict) else {},
+        summary=summary_out,
         risk_score=risk_score,
     )
     append_scan_result(result)
@@ -80,13 +93,6 @@ def _to_scan_result(
 
 @router.post("", response_model=ScanResult)
 async def scan(request: ScanRequest) -> ScanResult:
-    """
-    Main scan endpoint.
-
-    - mode="code": scan pasted code.
-    - mode="github": scan a GitHub repository.
-    - mode="file": accepted but use /api/scan/upload for file uploads.
-    """
     mode = request.mode.lower()
 
     if mode == "file":
@@ -99,20 +105,14 @@ async def scan(request: ScanRequest) -> ScanResult:
         if not request.content.strip():
             raise HTTPException(status_code=400, detail="content is required for mode=code")
         filename = request.filename or "pasted_code.py"
-        language = _detect_language(filename, request.language)
-
-        with tempfile.NamedTemporaryFile(mode="w", suffix=Path(filename).suffix or ".py", delete=False, encoding="utf-8") as tmp:
-            tmp.write(request.content)
-            tmp_path = Path(tmp.name)
-
-        files = [
-            {
-                "filename": str(tmp_path),
-                "content": request.content,
-                "language": language,
-            }
-        ]
-        raw = _run_pipeline_for_files(files)
+        # Scan the actual code content directly
+        raw = analyze_code(
+            code=request.content,
+            filename=filename,
+            use_llm=True,
+            severity_filter=None,
+            confidence_threshold=0.4,
+        )
         return _to_scan_result(raw, source=filename)
 
     if mode == "github":
@@ -126,7 +126,9 @@ async def scan(request: ScanRequest) -> ScanResult:
         if not files:
             raise HTTPException(status_code=400, detail="No supported files found in repository.")
 
-        raw = _run_pipeline_for_files(files)
+        from analyzer.pipeline import AnalyzerPipeline
+        pipeline = AnalyzerPipeline()
+        raw = pipeline.run(files)
         return _to_scan_result(raw, source=request.github_url)
 
     raise HTTPException(status_code=400, detail=f"Unsupported mode: {request.mode}")
@@ -134,9 +136,6 @@ async def scan(request: ScanRequest) -> ScanResult:
 
 @router.post("/upload", response_model=ScanResult)
 async def upload_scan(file: UploadFile = File(...)) -> ScanResult:
-    """
-    Multipart upload endpoint for scanning a single file.
-    """
     if not file.filename:
         raise HTTPException(status_code=400, detail="Uploaded file must have a filename.")
 
@@ -147,18 +146,11 @@ async def upload_scan(file: UploadFile = File(...)) -> ScanResult:
     except UnicodeDecodeError:
         text = contents.decode("latin-1")
 
-    language = _detect_language(file.filename)
-
-    with tempfile.NamedTemporaryFile(mode="w", suffix=suffix, delete=False, encoding="utf-8") as tmp:
-        tmp.write(text)
-        tmp_path = Path(tmp.name)
-
-    files = [
-        {
-            "filename": str(tmp_path),
-            "content": text,
-            "language": language,
-        }
-    ]
-    raw = _run_pipeline_for_files(files)
+    raw = analyze_code(
+        code=text,
+        filename=file.filename,
+        use_llm=True,
+        severity_filter=None,
+        confidence_threshold=0.4,
+    )
     return _to_scan_result(raw, source=file.filename)
