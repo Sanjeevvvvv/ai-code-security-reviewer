@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-import json
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
+import json
 import random
 import re
 import time
@@ -14,7 +17,6 @@ from utils.chunker import chunk_code
 
 
 MODEL = "llama3-70b-8192"
-
 
 SYSTEM_PROMPT = (
     "You are a senior security engineer. Analyze the following code for vulnerabilities. "
@@ -29,15 +31,12 @@ def _extract_json_object(text: str) -> Optional[Dict[str, Any]]:
     text = text.strip()
     if not text:
         return None
-    # direct parse
     try:
         obj = json.loads(text)
         if isinstance(obj, dict):
             return obj
     except Exception:
         pass
-
-    # try to extract the first JSON object
     m = re.search(r"\{[\s\S]*\}", text)
     if not m:
         return None
@@ -57,10 +56,6 @@ def _backoff_sleep(attempt: int) -> None:
 
 
 def _mock_findings_for_code(code: str, filename: str, language: str) -> List[Dict[str, Any]]:
-    """
-    Mock mode: generate realistic findings based on keyword heuristics.
-    Returns 2-3 findings per file when possible.
-    """
     language = language.lower()
     lines = code.splitlines()
 
@@ -73,101 +68,71 @@ def _mock_findings_for_code(code: str, filename: str, language: str) -> List[Dic
 
     findings: List[Dict[str, Any]] = []
 
-    # SQL injection heuristics
     if any(k in code.lower() for k in ["select ", "insert ", "update ", "delete ", "execute("]):
         ln = find_line("execute(") or find_line("select ")
-        findings.append(
-            {
-                "name": "Potential SQL Injection",
-                "severity": "high",
-                "description": "User-controlled input appears to be interpolated into an SQL query without parameterization.",
-                "line_number": ln,
-                "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
-                "fix_suggestion": "Use parameterized queries (prepared statements) and avoid string concatenation/formatting in SQL.",
-                "owasp_category": "A03-Injection",
-                "confidence_score": 0.74,
-            }
-        )
-
-    # Secrets heuristics
-    if re.search(r"AKIA[0-9A-Z]{16}", code) or re.search(r"ghp_[A-Za-z0-9]{36}", code) or "BEGIN PRIVATE KEY" in code:
-        ln = find_line("AKIA") if "AKIA" in code else find_line("ghp_")
-        findings.append(
-            {
-                "name": "Hardcoded Secret in Source",
-                "severity": "critical",
-                "description": "A credential-like value is embedded directly in the source code, which risks leakage and unauthorized access.",
-                "line_number": ln,
-                "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
-                "fix_suggestion": "Move secrets to a dedicated secrets manager or environment variables; rotate exposed credentials immediately.",
-                "owasp_category": "A02-Cryptographic Failures",
-                "confidence_score": 0.83,
-            }
-        )
+        findings.append({
+            "name": "Potential SQL Injection",
+            "severity": "high",
+            "description": "User-controlled input appears to be interpolated into an SQL query without parameterization.",
+            "line_number": ln,
+            "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
+            "fix_suggestion": "Use parameterized queries and avoid string concatenation in SQL.",
+            "owasp_category": "A03-Injection",
+            "confidence_score": 0.74,
+        })
 
     if re.search(r"(password|api_key|secret|token)\s*=\s*['\"][^'\"]+['\"]", code, re.IGNORECASE):
         ln = find_line("password") or find_line("api_key") or find_line("token")
-        findings.append(
-            {
-                "name": "Hardcoded Credential Assignment",
-                "severity": "high",
-                "description": "A variable assignment looks like a hardcoded credential. Hardcoding secrets increases risk of compromise.",
-                "line_number": ln,
-                "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
-                "fix_suggestion": "Load credentials from environment variables and ensure secrets are not committed to version control.",
-                "owasp_category": "A02-Cryptographic Failures",
-                "confidence_score": 0.70,
-            }
-        )
+        findings.append({
+            "name": "Hardcoded Credential",
+            "severity": "high",
+            "description": "A hardcoded credential was detected in the source code.",
+            "line_number": ln,
+            "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
+            "fix_suggestion": "Load credentials from environment variables.",
+            "owasp_category": "A02-Cryptographic Failures",
+            "confidence_score": 0.70,
+        })
 
-    # Auth / crypto heuristics
     if "verify=False" in code or "md5(" in code.lower() or "sha1(" in code.lower():
-        ln = find_line("verify=False") if "verify=False" in code else find_line("md5(") or find_line("sha1(")
-        findings.append(
-            {
-                "name": "Insecure Authentication / Crypto Practice",
-                "severity": "medium" if "verify=False" in code else "high",
-                "description": "The code appears to disable TLS verification and/or uses weak hashing for credential handling.",
-                "line_number": ln,
-                "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
-                "fix_suggestion": "Do not disable TLS verification in production; use modern password hashing (bcrypt/argon2) and strong algorithms.",
-                "owasp_category": "A07-Authentication Failures",
-                "confidence_score": 0.68,
-            }
-        )
+        ln = find_line("verify=False") or find_line("md5(") or find_line("sha1(")
+        findings.append({
+            "name": "Insecure Crypto Practice",
+            "severity": "medium",
+            "description": "Weak hashing algorithm or disabled TLS verification detected.",
+            "line_number": ln,
+            "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
+            "fix_suggestion": "Use bcrypt/argon2 for passwords, SHA-256+ for hashing.",
+            "owasp_category": "A07-Authentication Failures",
+            "confidence_score": 0.68,
+        })
 
-    # Deserialization heuristics
     if any(k in code for k in ["pickle.loads", "yaml.load", "eval(", "exec("]):
         ln = find_line("pickle.loads") or find_line("yaml.load") or find_line("eval(") or find_line("exec(")
-        findings.append(
-            {
-                "name": "Unsafe Deserialization / Code Execution",
-                "severity": "critical",
-                "description": "Potentially unsafe deserialization or dynamic code execution detected. This can lead to remote code execution.",
-                "line_number": ln,
-                "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
-                "fix_suggestion": "Avoid unsafe deserialization and dynamic code execution; use safe loaders and strict input validation.",
-                "owasp_category": "A08-Data Integrity Failures",
-                "confidence_score": 0.79,
-            }
-        )
+        findings.append({
+            "name": "Unsafe Deserialization",
+            "severity": "critical",
+            "description": "Potentially unsafe deserialization or dynamic code execution detected.",
+            "line_number": ln,
+            "code_snippet": (lines[ln - 1].strip() if 1 <= ln <= len(lines) else ""),
+            "fix_suggestion": "Avoid unsafe deserialization; use safe loaders and strict input validation.",
+            "owasp_category": "A08-Data Integrity Failures",
+            "confidence_score": 0.79,
+        })
 
-    # Keep 2-3 by default
     if len(findings) > 3:
         findings = findings[:3]
     if not findings:
-        findings = [
-            {
-                "name": "Potential Security Misconfiguration",
-                "severity": "low",
-                "description": "Mock mode could not identify strong signals; review configuration and dependency hygiene.",
-                "line_number": 1,
-                "code_snippet": (lines[0].strip() if lines else ""),
-                "fix_suggestion": "Enable secure defaults and add automated security testing (SAST/DAST) in CI.",
-                "owasp_category": "A05-Security Misconfiguration",
-                "confidence_score": 0.35,
-            }
-        ]
+        findings = [{
+            "name": "Potential Security Misconfiguration",
+            "severity": "low",
+            "description": "No strong signals found; review configuration and dependency hygiene.",
+            "line_number": 1,
+            "code_snippet": (lines[0].strip() if lines else ""),
+            "fix_suggestion": "Enable secure defaults and add automated security testing in CI.",
+            "owasp_category": "A05-Security Misconfiguration",
+            "confidence_score": 0.35,
+        }]
     return findings
 
 
@@ -175,7 +140,6 @@ class LLMAnalyzer:
     def __init__(self) -> None:
         self.api_key = os.getenv("GROQ_API_KEY")
         self.mock_mode = not bool(self.api_key)
-
         self._client: Optional[Groq] = None
         if not self.mock_mode:
             self._client = Groq(api_key=self.api_key)
@@ -188,9 +152,6 @@ class LLMAnalyzer:
         language: str,
         context: Optional[Dict[str, Any]] = None,
     ) -> Tuple[List[Dict[str, Any]], bool]:
-        """
-        Returns (findings, mock_mode_used).
-        """
         if self.mock_mode or self._client is None:
             return _mock_findings_for_code(code, filename, language), True
 
@@ -206,7 +167,6 @@ class LLMAnalyzer:
             )
             merged.extend(findings)
 
-        # De-dupe within LLM results
         uniq: List[Dict[str, Any]] = []
         seen = set()
         for f in merged:
@@ -231,11 +191,10 @@ class LLMAnalyzer:
         line_offset: int,
     ) -> List[Dict[str, Any]]:
         payload_context = context or {}
-
         user_prompt = (
             f"Filename: {filename}\n"
             f"Language: {language}\n\n"
-            "Context from static analysis (parsing + detectors):\n"
+            "Context from static analysis:\n"
             f"{json.dumps(payload_context, ensure_ascii=False)[:8000]}\n\n"
             "Code:\n"
             f"{chunk_code_text}\n\n"
@@ -244,7 +203,7 @@ class LLMAnalyzer:
 
         for attempt in range(1, 8):
             try:
-                resp = self._client.chat.completions.create(  # type: ignore[union-attr]
+                resp = self._client.chat.completions.create(
                     model=MODEL,
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
@@ -253,18 +212,17 @@ class LLMAnalyzer:
                     temperature=0.1,
                     max_tokens=1200,
                 )
-                choice = resp.choices[0]
-                content = choice.message.content
-                if isinstance(content, str):
-                    text = content
-                else:
-                    # groq python SDK may return a list of content parts
+                content = resp.choices[0].message.content
+                if not isinstance(content, str):
                     try:
-                        text = "".join(part["text"] if isinstance(part, dict) and "text" in part else str(part) for part in content)  # type: ignore[arg-type]
+                        content = "".join(
+                            p["text"] if isinstance(p, dict) and "text" in p else str(p)
+                            for p in content
+                        )
                     except Exception:
-                        text = str(content)
+                        content = str(content)
 
-                obj = _extract_json_object(text)
+                obj = _extract_json_object(content)
                 if not obj or "findings" not in obj or not isinstance(obj["findings"], list):
                     return []
 
@@ -278,19 +236,16 @@ class LLMAnalyzer:
                     except Exception:
                         ln_int = 1
                     f["line_number"] = max(1, ln_int + line_offset)
-                    # ensure required keys exist
                     f.setdefault("confidence_score", 0.5)
                     f.setdefault("owasp_category", None)
                     out.append(f)
                 return out
+
             except Exception as e:
-                # rate limit / transient errors: backoff
                 if "rate" in str(e).lower() or "429" in str(e) or isinstance(e, requests.RequestException):
                     _backoff_sleep(attempt)
                     continue
                 _backoff_sleep(attempt)
                 continue
 
-        # give up gracefully
         return []
-
